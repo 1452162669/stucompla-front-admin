@@ -43,10 +43,18 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    // console.log(response)
+    console.log(response)
     const res = response.data
     // return res
     // if the custom code is not 200, it is judged as an error.
+    if (response.headers.authorization !== undefined) {
+      store.dispatch('user/setToken', response.headers.authorization)
+      console.log('刷新jwt了---------------------------------')
+    }
+    if (response.headers.error !== undefined) {
+      store.dispatch('user/resetToken')
+      console.log('jwt过期了，请重新登录---------------------------------')
+    }
     if (res.code !== 200) {
       Message({
         message: res.msg || 'Error',

@@ -101,7 +101,7 @@ export const constantRoutes = [
         path: 'index',
         name: 'Walls',
         component: () => import('@/views/walls/index'),
-        meta: { title: '表白墙管理', icon: 'form' }
+        meta: { title: '表白墙审核', icon: 'form' }
       }
     ]
   },
