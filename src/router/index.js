@@ -105,7 +105,28 @@ export const constantRoutes = [
       }
     ]
   },
-
+  // 二手交易管理
+  {
+    path: '/market',
+    component: Layout,
+    redirect: '/market/goodsTable',
+    name: 'Market',
+    meta: { title: '二手交易管理', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'goodsTable',
+        name: 'GoodsTable',
+        component: () => import('@/views/market/goods-table'),
+        meta: { title: '商品管理', icon: 'table' }
+      },
+      {
+        path: 'orderTable',
+        name: 'OrderTable',
+        component: () => import('@/views/market/order-table'),
+        meta: { title: '订单管理', icon: 'tree' }
+      }
+    ]
+  },
   {
     path: '/example',
     component: Layout,

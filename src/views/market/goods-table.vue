@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.wallId" placeholder="墙ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.userId" placeholder="申请人ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.adminId" placeholder="审核人ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.auditState" placeholder="审核状态" clearable style="width: 150px" class="filter-item" @change="handleFilter">
+      <el-input v-model="listQuery.goodsId" placeholder="商品ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.userId" placeholder="卖家ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.keyName" placeholder="关键词" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-select v-model="listQuery.goodsStatus" placeholder="商品状态" clearable style="width: 150px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in statusOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select>
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
@@ -32,73 +32,67 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="墙ID" prop="wallId" sortable="custom" align="center" width="80" :class-name="getSortClass('wall_id')">
+      <el-table-column label="商品ID" prop="goodsId" sortable="custom" align="center" width="80" :class-name="getSortClass('goods_id')">
         <template slot-scope="{row}">
-          <span>{{ row.wallId }}</span>
+          <span>{{ row.goodsId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="申请人ID" align="center">
+      <el-table-column label="卖家" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.userId }}</span>
+          <span>{{ row.user.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="内容" align="left" width="200px">
+      <el-table-column label="商品名" align="left">
         <template slot-scope="{row}">
-          <el-tooltip class="item" :content="row.wallContent" placement="bottom" effect="light">
-            <span class="span-wallContent">{{ row.wallContent }}</span>
+          <el-tooltip class="item" :content="row.goodsName" placement="bottom" effect="light">
+            <span class="span-single-show">{{ row.goodsName }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column label="商品详情" align="left" width="200px">
+        <template slot-scope="{row}">
+          <el-tooltip class="item" :content="row.goodsDetail" placement="bottom" effect="light">
+            <span class="span-single-show">{{ row.goodsDetail }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="图片" width="90px" align="center">
         <template slot-scope="{row}">
           <el-image
-            v-if="row.wallImages!==null"
+            v-if="row.goodsImages!==null"
             style="width: 60px; height: 60px"
-            :src="row.wallImages[0]"
-            :preview-src-list="row.wallImages"
+            :src="row.goodsImages[0]"
+            :preview-src-list="row.goodsImages"
           />
           <!--          <span>{{ row.wallImages }}</span>-->
         </template>
       </el-table-column>
-      <el-table-column label="申请时间" width="155px" align="center">
+      <el-table-column label="分类" width="90px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.createtime }}</span>
+          <span>{{ row.goodsCategory.categoryName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="审核状态" class-name="status-col" width="80px" align="center">
+      <el-table-column label="价格" width="155px" align="center">
         <template slot-scope="{row}">
-          <!-- 审核不通过时，鼠标放到上面就会显示不通过的原因-->
-          <el-tooltip class="item" :content="row.auditFailedCause" placement="bottom" effect="light" :disabled="row.auditState!=2">
-            <el-tag :type="row.auditState | statusFilter">
-              {{ row.auditState==0?'未审核':row.auditState==1?'通过':'不通过' }}
-            </el-tag>
-          </el-tooltip>
+          <span>{{ row.goodsPrice }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="审核人ID" align="center">
+      <el-table-column label="库存" width="155px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.adminId }}</span>
+          <span>{{ row.goodsCount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="审核时间" width="155px" align="center">
+      <el-table-column label="商品状态" class-name="status-col" width="80px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.auditTime }}</span>
+          <!-- 可以写一个下架时，鼠标放到上面就会显示下架的原因-->
+          <el-tag :type="row.goodsStatus | statusFilter">
+            {{ row.goodsStatus==0?'已下架':'上架中' }}
+          </el-tag>
         </template>
       </el-table-column>
-      <!--      在审核状态那一列鼠标移上去就能看到不过的原因-->
-      <!--      <el-table-column label="审核不过原因" width="100px" align="center">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <span>{{ row.auditFailedCause }}</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-      <el-table-column label="评论数" width="70px" align="center">
+      <el-table-column label="浏览数" width="70px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.commentNum }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="点赞数" width="70px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.likeNum }}</span>
+          <span>{{ row.viewNum }}</span>
         </template>
       </el-table-column>
       <!--操作-->
@@ -106,33 +100,34 @@
         <template slot-scope="{row}">
           <el-popover
             placement="left"
-            title="审核"
+            title="下架"
             width="240"
             trigger="click"
           >
             <div style="text-align: center">
-              <p>
-                <el-radio v-model="auditRadio" label="1">审核通过</el-radio>
-                <el-radio v-model="auditRadio" label="2">审核不通过</el-radio>
-              </p>
-              <p v-if="auditRadio==2">
-                <el-input v-model="auditCause" type="textarea" :maxlength="30" placeholder="请填写不通过的原因（必填）" />
-              </p>
+              <el-input v-model="unShelveCause" type="textarea" :maxlength="30" placeholder="请填写下架原因（必填）" />
               <p style="">
-                <el-button size="mini" type="primary" @click="handleAudit(row)">
+                <el-button size="mini" type="primary" @click="handleUnShelve(row.goodsId)">
                   确定
                 </el-button>
               </p>
             </div>
             <el-button slot="reference" size="mini" type="primary">
-              审核
+              下架
             </el-button>
-            <!--            <el-button slot="reference">click 激活</el-button>-->
           </el-popover>
+          <el-popconfirm
+            confirm-button-text="确定"
+            cancel-button-text="取消"
+            icon="el-icon-info"
+            icon-color="red"
+            title="确定删除该商品吗？此操作不可恢复！"
+          >
+            <el-button slot="reference" size="mini" type="danger" @click="deleteGoods(row.goodsId,$index)">
+              删除
+            </el-button>
+          </el-popconfirm>
 
-          <!--          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">-->
-          <!--            删除-->
-          <!--          </el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -144,7 +139,8 @@
 
 <script>
 import { fetchPv, createArticle, updateArticle } from '@/api/admin'
-import { auditWall, fetchWallList } from '@/api/wall'
+import { auditWall } from '@/api/wall'
+import { fetchGoodsList, unShelve, deleteGoods } from '@/api/market'
 import waves from '@/directive/waves' // waves directive
 // import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -156,9 +152,8 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        0: 'info',
-        1: 'success',
-        2: 'danger'
+        false: 'danger',
+        true: 'success'
       }
       return statusMap[status]
     }
@@ -174,22 +169,21 @@ export default {
       listQuery: {
         pageNum: 1,
         pageSize: 20,
-        adminId: undefined,
+        goodsId: undefined,
         userId: undefined,
-        wallId: undefined,
-        sort: '+wall_id',
-        auditState: undefined
+        keyName: undefined, // 商品名和详情中模糊搜索
+        sort: '-goods_id', // 设定默认goods_id降序排序
+        goodsStatus: undefined,
+        goodsCategoryId: undefined
       },
-      statusOptions: [{ label: '待审核', key: '0' }, { label: '审核通过', key: '1' }, { label: '审核不通过', key: '2' }],
+      statusOptions: [{ label: '上架中', key: true }, { label: '已下架', key: false }],
+      unShelveCause: undefined,
       sortOptions: [
-        { label: 'ID升序', key: '+wall_id' },
-        { label: 'ID降序', key: '-wall_id' },
-        { label: '审核时间升序', key: '+audit_time' },
-        { label: '审核时间降序', key: '-audit_time' },
-        { label: '点赞数升序', key: '+like_num' },
-        { label: '点赞数降序', key: '-like_num' },
-        { label: '评论数升序', key: '+comment_num' },
-        { label: '评论数降序', key: '-comment_num' }
+        { label: 'ID降序', key: '-goods_id' },
+        { label: 'ID升序', key: '+goods_id' },
+        { label: '价格升序', key: '+goods_price' },
+        { label: '价格降序', key: '-goods_price' }
+        // 交易量也可以排
       ],
 
       temp: {
@@ -222,25 +216,24 @@ export default {
   },
   methods: {
     getList() {
-      this.listLoading = false
-      fetchWallList(this.listQuery).then(response => {
-        this.list = response.data.walls
+      fetchGoodsList(this.listQuery).then(response => {
+        this.list = response.data.goodsList
         console.log(this.list)
         this.list.forEach(function(item) {
           console.log(item)
-          if (item.wallImages !== null) {
-            const srcArr = item.wallImages.split(',')
+          if (item.goodsImages !== null) {
+            const srcArr = item.goodsImages.split(',')
             const srcList = []
             srcArr.forEach(function(item1) {
               srcList.push('http://localhost:8086/image/' + item1)
             })
-            item.wallImages = srcList
+            item.goodsImages = srcList
           }
-          console.log(item.wallImages)
+          console.log(item.goodsImages)
         })
         this.total = response.data.total
         console.log(this.list)
-
+        this.listLoading = false
         // Just to simulate the time of the request
         // setTimeout(() => {
         //   this.listLoading = false
@@ -260,15 +253,15 @@ export default {
     },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'wallId') {
+      if (prop === 'goodsId') {
         this.sortByID(order)
       }
     },
     sortByID(order) {
       if (order === 'ascending') {
-        this.listQuery.sort = '+wall_id'
+        this.listQuery.sort = '+goods_id'
       } else {
-        this.listQuery.sort = '-wall_id'
+        this.listQuery.sort = '-goods_id'
       }
       this.handleFilter()
     },
@@ -329,6 +322,13 @@ export default {
         this.$router.go(0)
       })
     },
+    handleUnShelve(goodsId) {
+      unShelve(goodsId).then(res => {
+        console.log(res)
+        this.$message.success(res.msg)
+        this.$router.go(0)
+      })
+    },
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
@@ -346,6 +346,13 @@ export default {
             })
           })
         }
+      })
+    },
+    deleteGoods(goodsId, index) {
+      deleteGoods(goodsId).then(res => {
+        console.log(res)
+        this.$message.success(res.msg)
+        this.list.splice(index, 1)
       })
     },
     handleDelete(row, index) {
@@ -390,7 +397,7 @@ export default {
 }
 </script>
 <style>
-.span-wallContent{
+.span-single-show{
   font-size: 12px;
   white-space:nowrap;/*强制单行显示*/
   text-overflow:ellipsis;/*超出部分省略号表示*/
