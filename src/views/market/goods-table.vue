@@ -122,8 +122,9 @@
             icon="el-icon-info"
             icon-color="red"
             title="确定删除该商品吗？此操作不可恢复！"
+            @confirm="deleteGoods(row.goodsId,$index)"
           >
-            <el-button slot="reference" size="mini" type="danger" @click="deleteGoods(row.goodsId,$index)">
+            <el-button slot="reference" size="mini" type="danger">
               删除
             </el-button>
           </el-popconfirm>

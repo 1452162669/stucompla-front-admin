@@ -3,7 +3,6 @@
     <div class="filter-container">
       <el-input v-model="listQuery.userId" placeholder="ID" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-input v-model="listQuery.username" placeholder="用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.email" placeholder="邮箱" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.sex" placeholder="性别" clearable style="width: 90px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in sexOptions" :key="item" :label="item" :value="item" />
       </el-select>
@@ -16,15 +15,7 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-        添加
-      </el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
-        导出
-      </el-button>
-      <!--      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">-->
-      <!--        reviewer-->
-      <!--      </el-checkbox>-->
+
     </div>
 
     <el-table
@@ -47,67 +38,123 @@
           <span>{{ row.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="邮箱" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.email }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="性别" width="110px" align="center">
+
+      <el-table-column label="性别" width="50px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.sex }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="注册时间" width="150px" align="center">
+      <el-table-column label="头像" width="125px" align="center">
+        <template slot-scope="{row}">
+          <el-image
+            v-if="row.avatar!=null&&row.avatar.length>0"
+            style="width: 100px; height: 100px"
+            :src="`http://localhost:8086/image/${row.avatar}`"
+          />
+          <span v-else>未上传</span>
+
+        </template>
+      </el-table-column>
+      <el-table-column label="个性签名" align="left">
+        <template slot-scope="{row}">
+          <el-tooltip class="item" :content="row.signature" placement="bottom" effect="light">
+            <span class="span-single-show">{{ row.signature }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column label="注册时间" width="180px" align="center">
         <template slot-scope="{row}">
           <!--          <span>{{ row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>-->
           <span>{{ row.createtime }}</span>
         </template>
       </el-table-column>
-      <!--      <el-table-column label="Title" min-width="150px">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>-->
-      <!--          <el-tag>{{ row.type | typeFilter }}</el-tag>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
 
-      <!--      <el-table-column v-if="showReviewer" label="Reviewer" width="110px" align="center">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <span style="color:red;">{{ row.reviewer }}</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-      <!--      <el-table-column label="Imp" width="80px">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <svg-icon v-for="n in + row.importance" :key="n" icon-class="star" class="meta-item__icon" />-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-      <!--      <el-table-column label="Readings" align="center" width="95">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <span v-if="row.pageviews" class="link-type" @click="handleFetchPv(row.pageviews)">{{ row.pageviews }}</span>-->
-      <!--          <span v-else>0</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-      <el-table-column label="Locked" class-name="status-col" width="100">
+      <el-table-column label="Locked" class-name="status-col" width="100" align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.locked | statusFilter">
-            {{ row.locked }}
+            {{ row.locked?'锁定':'正常' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            修改
-          </el-button>
-          <el-button v-if="row.locked!=true" size="mini" @click="handleModifyStatus(row,true)">
-            锁定
-          </el-button>
-          <el-button v-if="row.locked!=false" size="mini" type="success" @click="handleModifyStatus(row,false)">
-            解锁
-          </el-button>
+      <el-table-column label="Actions" align="center" class-name="small-padding fixed-width">
+        <template slot-scope="{row}">
+          <el-popover
+            placement="left"
+            width="350px"
+            align="center"
+            trigger="click"
+            style="padding-right: 10px"
+          >
+            <h3 align="center">重置 {{ row.username }} 的密码</h3>
+            <el-form
+              label-position="right"
+              label-width="90px"
+              :model="changePwdForm"
+            >
+              <el-form-item label="新密码">
+                <el-input v-model="changePwdForm.newPassword" type="password" />
+              </el-form-item>
+              <el-form-item label="重复新密码">
+                <el-input v-model="changePwdForm.secondPassword" type="password" />
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" plain @click="changePwd(row.userId)">确定重置</el-button>
+              </el-form-item>
+            </el-form>
+            <el-button slot="reference" type="primary" size="mini">
+              重置密码
+            </el-button>
+          </el-popover>
+          <el-popover
+            v-if="!row.locked"
+            placement="left"
+            width="350px"
+            trigger="click"
+            style="padding-right: 10px"
+          >
+            <el-input
+              v-model="lockedCause"
+              placeholder="请输入锁定原因（必填）"
+            />
+            <p align="center">
+              <el-button type="primary" size="mini" @click="handleModifyStatus(row,true)">确认锁定</el-button>
+            </p>
+            <el-button slot="reference" type="warning" size="mini">锁定</el-button>
 
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
-            Delete
-          </el-button>
+          </el-popover>
+
+          <!--          <el-button v-if="row.locked!=true" size="mini" >-->
+          <!--            锁定-->
+          <!--          </el-button>-->
+          <el-popconfirm
+            v-else
+            placement="top"
+            style="padding-right: 10px"
+            confirm-button-text="确定"
+            cancel-button-text="取消"
+            icon="el-icon-info"
+            icon-color="red"
+            title="确定解锁该用户吗？"
+            @onConfirm="handleModifyStatus(row,false)"
+          >
+            <el-button slot="reference" size="mini" type="success">
+              解锁
+            </el-button>
+          </el-popconfirm>
+          <!--          <el-popconfirm-->
+          <!--            v-else-->
+          <!--            style="padding-right: 10px"-->
+          <!--            icon="el-icon-info"-->
+          <!--            icon-color="red"-->
+          <!--            title="确定解锁该用户吗？"-->
+          <!--            @confirm="handleModifyStatus(row,false)"-->
+          <!--          >-->
+          <!--            <el-button slot="reference" size="mini" type="success">解锁</el-button>-->
+          <!--          </el-popconfirm>-->
+
+          <!--          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">-->
+          <!--            Delete-->
+          <!--          </el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -162,7 +209,7 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/user'
+import { fetchList, fetchPv, createArticle, updateArticle, changeUserPwd, lockedUser, unLockUser } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -214,6 +261,12 @@ export default {
         sex: undefined,
         status: undefined,
         sort: '+id'
+      },
+      lockedCause: undefined,
+      changePwdForm: {
+        newPassword: undefined,
+        secondPassword: undefined,
+        userId: undefined
       },
       sexOptions: ['男', '女'],
       calendarTypeOptions,
@@ -275,17 +328,35 @@ export default {
       //   }, 1.5 * 1000)
       // })
     },
+    changePwd(userId) {
+      this.changePwdForm.userId = userId
+      changeUserPwd(this.changePwdForm).then(res => {
+        this.$message.success(res.data)
+        this.$router.go(0)
+      })
+    },
     handleFilter() {
       this.listQuery.pageNum = 1
       this.getList()
     },
     handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
+      // console.log(status)
+      // this.$message({
+      //   message: '操作Success',
+      //   type: 'success'
+      // })
       // 后台要实现状态转换
-      row.locked = status
+      if (status) {
+        lockedUser({ userId: row.userId, cause: this.lockedCause }).then(res => {
+          this.$message.success(res.data)
+          row.locked = status
+        })
+      } else {
+        unLockUser({ userId: row.userId }).then(res => {
+          this.$message.success(res.data)
+          row.locked = status
+        })
+      }
     },
     sortChange(data) {
       const { prop, order } = data
@@ -340,7 +411,6 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -412,3 +482,13 @@ export default {
   }
 }
 </script>
+<style>
+.span-single-show{
+  font-size: 12px;
+  white-space:nowrap;/*强制单行显示*/
+  text-overflow:ellipsis;/*超出部分省略号表示*/
+  overflow:hidden;/*超出部分隐藏*/
+  width: 100%;/*设置显示的最大宽度*/
+  display:inline-block;
+}
+</style>
