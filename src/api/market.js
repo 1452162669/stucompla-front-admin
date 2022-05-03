@@ -8,6 +8,27 @@ export function fetchGoodsList(query) {
   })
 }
 
+export function fetchGoodsTotal() {
+  return request({
+    url: '/goods/getGoodsTotal',
+    method: 'get'
+  })
+}
+
+export function fetchGoodsCountByCategory() {
+  return request({
+    url: '/goods/getGoodsByCategory',
+    method: 'get'
+  })
+}
+
+export function fetchOrderTotal() {
+  return request({
+    url: '/market-order/getOrderTotal',
+    method: 'get'
+  })
+}
+
 export function unShelve(data) {
   return request({
     url: '/goods/unShelve/' + data,

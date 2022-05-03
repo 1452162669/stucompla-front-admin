@@ -8,6 +8,20 @@ export function fetchWallList(query) {
   })
 }
 
+export function fetchWallTotal() {
+  return request({
+    url: '/wall/getWallTotal',
+    method: 'get'
+  })
+}
+
+export function fetchWallCountByState() {
+  return request({
+    url: '/wall/getWallData',
+    method: 'get'
+  })
+}
+
 export function auditWall(data) {
   return request({
     url: '/wall/audit',

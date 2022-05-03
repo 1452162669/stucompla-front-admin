@@ -39,6 +39,7 @@ export function changeUserPwd(query) {
     params: query
   })
 }
+
 export function lockedUser(query) {
   return request({
     url: '/user/lockedUser',
@@ -46,11 +47,19 @@ export function lockedUser(query) {
     params: query
   })
 }
+
 export function unLockUser(query) {
   return request({
     url: '/user/unLockUser',
     method: 'post',
     params: query
+  })
+}
+
+export function fetchUserTotal() {
+  return request({
+    url: '/user/getUserTotal',
+    method: 'get'
   })
 }
 

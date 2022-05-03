@@ -69,14 +69,14 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Locked" class-name="status-col" width="100" align="center">
+      <el-table-column label="状态" class-name="status-col" width="100" align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.locked | statusFilter">
             {{ row.locked?'锁定':'正常' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-popover
             placement="left"

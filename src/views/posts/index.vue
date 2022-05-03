@@ -4,12 +4,14 @@
       <el-input v-model="listQuery.postId" placeholder="ID" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-input v-model="listQuery.title" placeholder="标题" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-input v-model="listQuery.detail" placeholder="内容" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.userId" placeholder="发布人" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.userId" placeholder="发布人ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
 
-      <!-- 发布人 种类
-    -->
+      <!-- 发布人 种类-->
       <el-select v-model="listQuery.categoryId" placeholder="种类" clearable style="width: 120px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in categories" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId" />
+      </el-select>
+      <el-select v-model="listQuery.postStatus" placeholder="状态" clearable style="width: 140px" class="filter-item" @change="handleFilter">
+        <el-option v-for="item in statusOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select>
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
@@ -40,7 +42,7 @@
           <span>{{ row.postId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Title" min-width="180px" align="center">
+      <el-table-column label="标题" align="center">
         <template slot-scope="{row}">
           <span>{{ row.title }}</span>
         </template>
@@ -51,7 +53,7 @@
         </template>
       </el-table-column>
       <el-table-column label="内容" align="center" width="105" class-name="small-padding fixed-width">
-        <template slot-scope="{row,$index}">
+        <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="handleDetailView(row)">
             查看内容
           </el-button>
@@ -74,32 +76,74 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="发帖时间" width="155px" align="center">
+      <el-table-column label="发帖时间" align="center" width="155">
         <template slot-scope="{row}">
           <!--          <span>{{ row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>-->
           <span>{{ row.createTime }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" width="155px" align="center">
-        <template slot-scope="{row}">
-          <!--          <span>{{ row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>-->
-          <span>{{ row.updateTime }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Actions" align="center" width="230" class-name="small-padding fixed-width">
+      <!--      <el-table-column label="更新时间" width="155px" align="center">-->
+      <!--        <template slot-scope="{row}">-->
+      <!--          &lt;!&ndash;          <span>{{ row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>&ndash;&gt;-->
+      <!--          <span>{{ row.updateTime }}</span>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            Edit
-          </el-button>
-          <el-button v-if="row.status!='published'" size="mini" type="success" @click="handleModifyStatus(row,'published')">
-            Publish
-          </el-button>
-          <!--          <el-button v-if="row.status!='draft'" size="mini" @click="handleModifyStatus(row,'draft')">-->
-          <!--            Draft-->
+          <el-popover
+            v-if="row.postStatus==0"
+            placement="left"
+            width="350px"
+            trigger="click"
+            style="padding-right: 10px"
+          >
+            <el-input
+              v-model="lockedCause"
+              placeholder="请输入锁定原因（必填）"
+            />
+            <p align="center">
+              <el-button type="primary" size="mini" @click="handleModifyStatus(row,true)">确认锁定</el-button>
+            </p>
+            <el-button slot="reference" type="warning" size="mini">锁定</el-button>
+
+          </el-popover>
+
+          <!--          <el-button v-if="row.locked!=true" size="mini" >-->
+          <!--            锁定-->
           <!--          </el-button>-->
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
-            Delete
-          </el-button>
+          <el-popconfirm
+            v-else
+            placement="top"
+            style="padding-right: 10px"
+            confirm-button-text="确定"
+            cancel-button-text="取消"
+            icon="el-icon-info"
+            icon-color="red"
+            title="确定解锁该帖子吗？"
+            @onConfirm="handleModifyStatus(row,false)"
+          >
+            <el-button slot="reference" size="mini" type="success">
+              解锁
+            </el-button>
+          </el-popconfirm>
+          <el-popover
+            placement="left"
+            width="350px"
+            trigger="click"
+            style="padding-right: 10px"
+          >
+            <h3 style="color:red;">删除后所有相关数据将丢失，此操作不可恢复！谨慎操作！</h3>
+            <el-input
+              v-model="deleteCause"
+              placeholder="请输入锁定原因（必填）"
+            />
+            <p align="center">
+              <el-button type="primary" size="mini" @click="deletePost(row.postId,$index)">确认删除</el-button>
+            </p>
+            <el-button slot="reference" type="danger" size="mini">删除</el-button>
+
+          </el-popover>
+
         </template>
       </el-table-column>
     </el-table>
@@ -152,7 +196,9 @@
     </el-dialog>
 
     <el-dialog :visible.sync="dialogDetailVisible" title="帖子详情">
-      <p v-html="temp.detail" />
+      <div>
+        <p v-html="temp.detail" />
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -160,7 +206,7 @@
 <script>
 import { fetchPv, createArticle, updateArticle } from '@/api/admin'
 import { fetchCategoryList } from '@/api/category'
-import { fetchPostList } from '@/api/post'
+import { deletePostByAdmin, fetchPostList, lockedPost, unLockPost } from '@/api/post'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -209,9 +255,12 @@ export default {
         detail: undefined,
         userId: undefined,
         categoryId: undefined,
+        postStatus: undefined,
         sort: '+post_id'
         // sortPV: '+view_num'
       },
+      lockedCause: undefined,
+      deleteCause: undefined,
       categories: [],
       roleOptions: [{ label: 'admin', key: '2' }, { label: 'super', key: '3' }],
       calendarTypeOptions,
@@ -222,7 +271,8 @@ export default {
         { label: 'PV降序', key: '-view_num' },
         { label: '评论数升序', key: '+comment_num' },
         { label: '评论数降序', key: '-comment_num' }],
-      statusOptions: ['published', 'draft', 'deleted'],
+      statusOptions: [{ label: '锁定', key: 1 }, { label: '正常', key: 0 }],
+
       // showReviewer: false,
       temp: {
         id: undefined,
@@ -273,11 +323,23 @@ export default {
       this.getList()
     },
     handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
+      if (status) {
+        lockedPost({ postId: row.postId, cause: this.lockedCause }).then(res => {
+          this.$message.success(res.data)
+          row.postStatus = 1
+        })
+      } else {
+        unLockPost({ postId: row.postId }).then(res => {
+          this.$message.success(res.data)
+          row.postStatus = 0
+        })
+      }
+    },
+    deletePost(postId, index) {
+      deletePostByAdmin({ postId: postId, cause: this.deleteCause }).then(res => {
+        this.$message.success(res.data)
+        this.list.splice(index, 1)
       })
-      row.status = status
     },
     sortChange(data) {
       const { prop, order } = data
