@@ -1,23 +1,19 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.wallId" placeholder="墙ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.userId" placeholder="申请人ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.adminId" placeholder="审核人ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.auditState" placeholder="审核状态" clearable style="width: 150px" class="filter-item" @change="handleFilter">
+      <el-input v-model="listQuery.orderId" placeholder="订单ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.buyerId" placeholder="买家ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.sellerId" placeholder="卖家ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.goodsId" placeholder="商品ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-select v-model="listQuery.orderStatus" placeholder="订单状态" clearable style="width: 150px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in statusOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select>
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select>
 
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
-      </el-button>
-
-      <!--      导出功能未完善-->
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
-        导出
       </el-button>
 
     </div>
@@ -32,107 +28,59 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="墙ID" prop="wallId" sortable="custom" align="center" width="80" :class-name="getSortClass('wall_id')">
+      <el-table-column label="订单ID" prop="orderId" sortable="custom" align="center" width="90" :class-name="getSortClass('order_id')">
         <template slot-scope="{row}">
-          <span>{{ row.wallId }}</span>
+          <span>{{ row.orderId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="申请人ID" align="center">
+      <el-table-column label="买家ID" align="left" width="70">
         <template slot-scope="{row}">
-          <span>{{ row.userId }}</span>
+          <span>{{ row.buyer.userId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="内容" align="left" width="200px">
+      <el-table-column label="卖家ID" align="left" width="70">
         <template slot-scope="{row}">
-          <el-tooltip class="item" :content="row.wallContent" placement="bottom" effect="light">
-            <span class="span-wallContent">{{ row.wallContent }}</span>
-          </el-tooltip>
+          <span>{{ row.seller.userId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="图片" width="90px" align="center">
+      <el-table-column label="商品ID" align="left" width="70">
         <template slot-scope="{row}">
-          <el-image
-            v-if="row.wallImages!==null"
-            style="width: 60px; height: 60px"
-            :src="row.wallImages[0]"
-            :preview-src-list="row.wallImages"
-          />
-          <!--          <span>{{ row.wallImages }}</span>-->
+          <span>{{ row.goodsId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="申请时间" width="155px" align="center">
+      <el-table-column label="商品名" align="left">
         <template slot-scope="{row}">
-          <span>{{ row.createtime }}</span>
+          <span>{{ row.goodsName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="审核状态" class-name="status-col" width="80px" align="center">
+      <el-table-column label="单价" align="left" width="60">
         <template slot-scope="{row}">
-          <!-- 审核不通过时，鼠标放到上面就会显示不通过的原因-->
-          <el-tooltip class="item" :content="row.auditFailedCause" placement="bottom" effect="light" :disabled="row.auditState!=2">
-            <el-tag :type="row.auditState | statusFilter">
-              {{ row.auditState==0?'未审核':row.auditState==1?'通过':'不通过' }}
-            </el-tag>
-          </el-tooltip>
+          <span>{{ row.goodsPrice }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="审核人ID" align="center">
+      <el-table-column label="购买数量" align="left">
         <template slot-scope="{row}">
-          <span>{{ row.adminId }}</span>
+          <span>{{ row.buyCount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="审核时间" width="155px" align="center">
+      <el-table-column label="订单总价" prop="totalPrice" sortable="custom" align="left" :class-name="getSortClass('total_price')">
         <template slot-scope="{row}">
-          <span>{{ row.auditTime }}</span>
+          <span>{{ row.totalPrice }}</span>
         </template>
       </el-table-column>
-      <!--      在审核状态那一列鼠标移上去就能看到不过的原因-->
-      <!--      <el-table-column label="审核不过原因" width="100px" align="center">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <span>{{ row.auditFailedCause }}</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-      <el-table-column label="评论数" width="70px" align="center">
+      <el-table-column label="创建时间" width="160px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.commentNum }}</span>
+          <span>{{ row.createTime }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="点赞数" width="70px" align="center">
+      <el-table-column label="订单状态" class-name="status-col" width="80px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.likeNum }}</span>
+          <span>{{ getOrderStatus(row.orderStatus) }}</span>
         </template>
       </el-table-column>
-      <!--操作-->
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="更新时间" prop="updateTime" sortable="custom" width="160px" align="center" :class-name="getSortClass('update_time')">
         <template slot-scope="{row}">
-          <el-popover
-            placement="left"
-            title="审核"
-            width="240"
-            trigger="click"
-          >
-            <div style="text-align: center">
-              <p>
-                <el-radio v-model="auditRadio" label="1">审核通过</el-radio>
-                <el-radio v-model="auditRadio" label="2">审核不通过</el-radio>
-              </p>
-              <p v-if="auditRadio==2">
-                <el-input v-model="auditCause" type="textarea" :maxlength="30" placeholder="请填写不通过的原因（必填）" />
-              </p>
-              <p style="">
-                <el-button size="mini" type="primary" @click="handleAudit(row)">
-                  确定
-                </el-button>
-              </p>
-            </div>
-            <el-button slot="reference" size="mini" type="primary">
-              审核
-            </el-button>
-            <!--            <el-button slot="reference">click 激活</el-button>-->
-          </el-popover>
-
-          <!--          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">-->
-          <!--            删除-->
-          <!--          </el-button>-->
+          <span>{{ row.updateTime }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -143,11 +91,10 @@
 </template>
 
 <script>
-import { fetchPv, createArticle, updateArticle } from '@/api/admin'
-import { auditWall, fetchWallList } from '@/api/wall'
 import waves from '@/directive/waves' // waves directive
 // import { parseTime } from '@/utils'
-import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import Pagination from '@/components/Pagination'
+import { fetchOrderList } from '@/api/market' // secondary package based on el-pagination
 
 export default {
   name: 'ComplexTable',
@@ -173,42 +120,28 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 20,
-        adminId: undefined,
-        userId: undefined,
-        wallId: undefined,
-        sort: '+wall_id',
-        auditState: undefined
+        pageSize: 8,
+        orderId: undefined,
+        buyerId: undefined,
+        sellerId: undefined,
+        goodsId: undefined,
+        sort: '+order_id',
+        orderStatus: undefined
       },
-      statusOptions: [{ label: '待审核', key: '0' }, { label: '审核通过', key: '1' }, { label: '审核不通过', key: '2' }],
+      // 0-未付 1-已付 2-已发货 3-已签收 4-退货中 5-已退货
+      statusOptions: [
+        { label: '待支付', key: '0' }, { label: '待发货', key: '1' },
+        { label: '待签收', key: '2' }, { label: '已签收', key: '3' },
+        { label: '退货中', key: '4' }, { label: '已退货', key: '5' }],
       sortOptions: [
-        { label: 'ID升序', key: '+wall_id' },
-        { label: 'ID降序', key: '-wall_id' },
-        { label: '审核时间升序', key: '+audit_time' },
-        { label: '审核时间降序', key: '-audit_time' },
-        { label: '点赞数升序', key: '+like_num' },
-        { label: '点赞数降序', key: '-like_num' },
-        { label: '评论数升序', key: '+comment_num' },
-        { label: '评论数降序', key: '-comment_num' }
+        { label: 'ID升序', key: '+order_id' },
+        { label: 'ID降序', key: '-order_id' },
+        { label: '更新时间升序', key: '+update_time' },
+        { label: '更新时间降序', key: '-update_time' },
+        { label: '总价升序', key: '+total_price' },
+        { label: '总价降序', key: '-total_price' }
       ],
 
-      temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
       rules: {
         type: [{ required: true, message: 'type is required', trigger: 'change' }],
         timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
@@ -217,30 +150,17 @@ export default {
       downloadLoading: false
     }
   },
-  created() {
-    this.getList()
+  async created() {
+    await this.getList()
   },
   methods: {
-    getList() {
-      this.listLoading = false
-      fetchWallList(this.listQuery).then(response => {
-        this.list = response.data.walls
+    async getList() {
+      await fetchOrderList(this.listQuery).then(res => {
+        this.list = res.data.orderList
+        // console.log(this.list)
+        this.total = res.data.total
         console.log(this.list)
-        this.list.forEach(function(item) {
-          console.log(item)
-          if (item.wallImages !== null) {
-            const srcArr = item.wallImages.split(',')
-            const srcList = []
-            srcArr.forEach(function(item1) {
-              srcList.push('http://localhost:8086/image/' + item1)
-            })
-            item.wallImages = srcList
-          }
-          console.log(item.wallImages)
-        })
-        this.total = response.data.total
-        console.log(this.list)
-
+        this.listLoading = false
         // Just to simulate the time of the request
         // setTimeout(() => {
         //   this.listLoading = false
@@ -251,136 +171,58 @@ export default {
       this.listQuery.pageNum = 1
       this.getList()
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
-    },
+
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'wallId') {
+      if (prop === 'orderId') {
         this.sortByID(order)
+      }
+      if (prop === 'totalPrice') {
+        this.sortByTotalPrice(order)
+      }
+      if (prop === 'updateTime') {
+        this.sortByUpdateTime(order)
       }
     },
     sortByID(order) {
       if (order === 'ascending') {
-        this.listQuery.sort = '+wall_id'
+        this.listQuery.sort = '+order_id'
       } else {
-        this.listQuery.sort = '-wall_id'
+        this.listQuery.sort = '-order_id'
       }
       this.handleFilter()
     },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
+    sortByTotalPrice(order) {
+      if (order === 'ascending') {
+        this.listQuery.sort = '+total_price'
+      } else {
+        this.listQuery.sort = '-total_price'
       }
+      this.handleFilter()
     },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+    sortByUpdateTime(order) {
+      if (order === 'ascending') {
+        this.listQuery.sort = '+update_time'
+      } else {
+        this.listQuery.sort = '-update_time'
+      }
+      this.handleFilter()
     },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    handleAudit(row) {
-      auditWall({
-        wallId: row.wallId,
-        auditState: this.auditRadio,
-        auditFailedCause: this.auditCause
-      }).then(res => {
-        console.log(res)
-        this.$message.success(res.msg)
-        this.$router.go(0)
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row, index) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
-      })
-    },
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['墙ID', '申请人ID', '内容', '图片', '申请时间', '审核状态', '审核人ID', '审核时间', '评论数', '点赞数']
-        const filterVal = ['wallId', 'userId', 'wallContent', 'wallImages', 'createtime', 'auditState', 'adminId', 'auditTime', 'commentNum', 'likeNum']
-        const data = this.formatJson(filterVal)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'walls-list'
-        })
-        this.downloadLoading = false
-      })
-    },
-    formatJson(filterVal) {
-      return this.list.map(v => filterVal.map(j => {
-        return v[j]
-      }))
+    getOrderStatus(status) {
+      console.log(status)
+      if (status === 0) {
+        return '待支付'
+      } else if (status === 1) {
+        return '待发货'
+      } else if (status === 2) {
+        return '待签收'
+      } else if (status === 3) {
+        return '已签收'
+      } else if (status === 4) {
+        return '退货中'
+      } else if (status === 5) {
+        return '已退货'
+      }
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort

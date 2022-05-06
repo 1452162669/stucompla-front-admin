@@ -29,6 +29,15 @@ export function fetchOrderTotal() {
   })
 }
 
+export function fetchOrderList(query) {
+  return request({
+    url: '/market-order/orderList',
+    method: 'get',
+    params: query
+
+  })
+}
+
 export function unShelve(data) {
   return request({
     url: '/goods/unShelve/' + data,

@@ -299,13 +299,13 @@ export default {
       downloadLoading: false
     }
   },
-  created() {
-    this.getList()
+  async created() {
+    await this.getList()
   },
   methods: {
-    getList() {
+    async getList() {
       this.listLoading = false
-      fetchList(this.listQuery).then(response => {
+      await fetchList(this.listQuery).then(response => {
         console.log(response)
         this.list = response.data.userList
         this.total = response.data.total

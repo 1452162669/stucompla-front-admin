@@ -212,12 +212,12 @@ export default {
       downloadLoading: false
     }
   },
-  created() {
-    this.getList()
+  async created() {
+    await this.getList()
   },
   methods: {
-    getList() {
-      fetchGoodsList(this.listQuery).then(response => {
+    async getList() {
+      await fetchGoodsList(this.listQuery).then(response => {
         this.list = response.data.goodsList
         console.log(this.list)
         this.list.forEach(function(item) {

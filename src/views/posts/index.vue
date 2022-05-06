@@ -301,14 +301,14 @@ export default {
       downloadLoading: false
     }
   },
-  created() {
-    this.getList()
-    this.getCategoryList()
+  async created() {
+    await this.getList()
+    await this.getCategoryList()
   },
   methods: {
-    getList() {
+    async getList() {
       this.listLoading = false
-      fetchPostList(this.listQuery).then(response => {
+      await fetchPostList(this.listQuery).then(response => {
         console.log(response)
         this.list = response.data.postList
         this.total = response.data.total

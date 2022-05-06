@@ -217,13 +217,13 @@ export default {
       downloadLoading: false
     }
   },
-  created() {
-    this.getList()
+  async created() {
+    await this.getList()
   },
   methods: {
-    getList() {
+    async getList() {
       this.listLoading = false
-      fetchWallList(this.listQuery).then(response => {
+      await fetchWallList(this.listQuery).then(response => {
         this.list = response.data.walls
         console.log(this.list)
         this.list.forEach(function(item) {
