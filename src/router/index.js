@@ -92,6 +92,20 @@ export const constantRoutes = [
     ]
   },
 
+  // 评论管理
+  {
+    path: '/comments',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Comments',
+        component: () => import('@/views/comments/index'),
+        meta: { title: '评论管理', icon: 'form' }
+      }
+    ]
+  },
+
   // 表白墙管理
   {
     path: '/walls',

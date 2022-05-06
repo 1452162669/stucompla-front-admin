@@ -1,30 +1,17 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.postId" placeholder="ID" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.title" placeholder="标题" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.detail" placeholder="内容" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.userId" placeholder="发布人ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.commentId" placeholder="评论ID" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.postId" placeholder="帖子ID" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.userId" placeholder="评论人ID" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.text" placeholder="评论内容" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter" />
 
-      <!-- 发布人 种类-->
-      <el-select v-model="listQuery.categoryId" placeholder="种类" clearable style="width: 120px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in categories" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId" />
-      </el-select>
-      <el-select v-model="listQuery.postStatus" placeholder="状态" clearable style="width: 140px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in statusOptions" :key="item.key" :label="item.label" :value="item.key" />
-      </el-select>
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
-        导出
-      </el-button>
-      <!--      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">-->
-      <!--        reviewer-->
-      <!--      </el-checkbox>-->
     </div>
 
     <el-table
@@ -37,46 +24,43 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="ID" prop="post_id" sortable="custom" align="center" width="70" :class-name="getSortClass('post_id')">
+      <el-table-column label="ID" prop="comment_id" sortable="custom" align="center" width="70" :class-name="getSortClass('comment_id')">
+        <template slot-scope="{row}">
+          <span>{{ row.commentId }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="评论内容" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.text }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="图片" width="125px" align="center">
+        <template slot-scope="{row}">
+          <el-image
+            v-if="row.images!=null&&row.images.length>0"
+            style="width: 100px; height: 100px"
+            :src="`http://localhost:8086/image/${row.images}`"
+          />
+          <span v-else>无</span>
+
+        </template>
+      </el-table-column>
+      <el-table-column label="帖子ID" prop="post_id" sortable="custom" align="center" width="90" :class-name="getSortClass('post_id')">
         <template slot-scope="{row}">
           <span>{{ row.postId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标题" align="center">
+      <el-table-column label="帖子标题" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.title }}</span>
+          <span>{{ row.postVo.title }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="种类" width="90px" align="center">
+      <el-table-column label="评论人ID" prop="user_id" sortable="custom" align="center" width="120" :class-name="getSortClass('user_id')">
         <template slot-scope="{row}">
-          <span>{{ row.category.categoryName }}</span>
+          <span>{{ row.userId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="内容" align="center" width="105" class-name="small-padding fixed-width">
-        <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="handleDetailView(row)">
-            查看内容
-          </el-button>
-        </template>
-      </el-table-column>
-      <el-table-column label="发贴人" width="90px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.user.username }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="浏览量" prop="view_num" sortable="custom" align="center" width="90" :class-name="getSortClass('view_num')">
-        <template slot-scope="{row}">
-          <span>{{ row.viewNum }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="评论数" prop="comment_num" sortable="custom" align="center" width="90" :class-name="getSortClass('comment_num')">
-        <template slot-scope="{row}">
-          <span>{{ row.commentNum }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="发帖时间" align="center" width="155">
+      <el-table-column label="评论时间" align="center" width="155">
         <template slot-scope="{row}">
           <!--          <span>{{ row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>-->
           <span>{{ row.createTime }}</span>
@@ -91,56 +75,19 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-popover
-            v-if="row.postStatus==0"
             placement="left"
             width="350px"
             trigger="click"
             style="padding-right: 10px"
           >
-            <el-input
-              v-model="lockedCause"
-              placeholder="请输入锁定原因（必填）"
-            />
-            <p align="center">
-              <el-button type="primary" size="mini" @click="handleModifyStatus(row,true)">确认锁定</el-button>
-            </p>
-            <el-button slot="reference" type="warning" size="mini">锁定</el-button>
-
-          </el-popover>
-
-          <!--          <el-button v-if="row.locked!=true" size="mini" >-->
-          <!--            锁定-->
-          <!--          </el-button>-->
-          <el-popconfirm
-            v-else
-            placement="top"
-            style="padding-right: 10px"
-            confirm-button-text="确定"
-            cancel-button-text="取消"
-            icon="el-icon-info"
-            icon-color="red"
-            title="确定解锁该帖子吗？"
-            @onConfirm="handleModifyStatus(row,false)"
-          >
-            <el-button slot="reference" size="mini" type="success">
-              解锁
-            </el-button>
-          </el-popconfirm>
-          <el-popover
-            placement="left"
-            width="350px"
-            trigger="click"
-            style="padding-right: 10px"
-          >
-            <h3 style="color:red;">删除后所有相关数据将丢失，此操作不可恢复！谨慎操作！</h3>
             <el-input
               v-model="deleteCause"
-              placeholder="请输入锁定原因（必填）"
+              placeholder="请输入删除该评论的原因（必填）"
             />
             <p align="center">
-              <el-button type="primary" size="mini" @click="deletePost(row.postId,$index)">确认删除</el-button>
+              <el-button type="primary" size="mini" @click="deleteComment(row.commentId,$index)">确认删除</el-button>
             </p>
-            <el-button slot="reference" type="danger" size="mini">删除</el-button>
+            <el-button slot="reference" type="danger" size="mini">删除评论</el-button>
 
           </el-popover>
 
@@ -206,10 +153,11 @@
 <script>
 import { fetchPv, createArticle, updateArticle } from '@/api/admin'
 import { fetchCategoryList } from '@/api/category'
-import { deletePostByAdmin, fetchPostList, lockedPost, unLockPost } from '@/api/post'
+import { deletePostByAdmin, lockedPost, unLockPost } from '@/api/post'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import Pagination from '@/components/Pagination'
+import { deleteComment, fetchCommentList } from '@/api/comment' // secondary package based on el-pagination
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -250,27 +198,23 @@ export default {
       listQuery: {
         pageNum: 1,
         pageSize: 20,
+        commentId: undefined,
         postId: undefined,
-        title: undefined,
-        detail: undefined,
         userId: undefined,
-        categoryId: undefined,
-        postStatus: undefined,
-        sort: '+post_id'
-        // sortPV: '+view_num'
+        text: undefined,
+        sort: '-comment_id'
       },
-      lockedCause: undefined,
       deleteCause: undefined,
       categories: [],
       roleOptions: [{ label: 'admin', key: '2' }, { label: 'super', key: '3' }],
       calendarTypeOptions,
       // sortViewNumOptions: [{ label: 'PV升序', key: '+view_num' }, { label: 'PV降序', key: '-view_num' }],
-      sortOptions: [{ label: 'ID升序', key: '+post_id' },
-        { label: 'ID降序', key: '-post_id' },
-        { label: 'PV升序', key: '+view_num' },
-        { label: 'PV降序', key: '-view_num' },
-        { label: '评论数升序', key: '+comment_num' },
-        { label: '评论数降序', key: '-comment_num' }],
+      sortOptions: [{ label: 'ID升序', key: '+comment_id' },
+        { label: 'ID降序', key: '-comment_id' },
+        { label: '帖子ID升序', key: '+post_id' },
+        { label: '帖子ID降序', key: '-post_id' },
+        { label: '发布人ID升序', key: '+user_id' },
+        { label: '发布人ID降序', key: '-user_id' }],
       statusOptions: [{ label: '锁定', key: 1 }, { label: '正常', key: 0 }],
 
       // showReviewer: false,
@@ -306,17 +250,16 @@ export default {
     this.getCategoryList()
   },
   methods: {
-    getList() {
-      this.listLoading = false
-      fetchPostList(this.listQuery).then(response => {
-        console.log(response)
-        this.list = response.data.postList
+    async getList() {
+      await fetchCommentList(this.listQuery).then(response => {
+        this.list = response.data.commentList
         this.total = response.data.total
         // Just to simulate the time of the request
         // setTimeout(() => {
         //   this.listLoading = false
         // }, 1.5 * 1000)
       })
+      this.listLoading = false
     },
     handleFilter() {
       this.listQuery.pageNum = 1
@@ -335,8 +278,8 @@ export default {
         })
       }
     },
-    deletePost(postId, index) {
-      deletePostByAdmin({ postId: postId, cause: this.deleteCause }).then(res => {
+    deleteComment(commentId, index) {
+      deleteComment({ commentId: commentId, cause: this.deleteCause }).then(res => {
         this.$message.success(res.data)
         this.list.splice(index, 1)
         this.$router.go(0)
@@ -344,21 +287,37 @@ export default {
     },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'post_id') {
+      if (prop === 'comment_id') {
         this.sortByID(order)
       }
-      if (prop === 'view_num') {
-        this.sortByPV(order)
+      if (prop === 'post_id') {
+        this.sortByPostId(order)
       }
-      if (prop === 'comment_num') {
-        this.sortByCommentNum(order)
+      if (prop === 'user_id') {
+        this.sortByUserId(order)
       }
     },
     sortByID(order) {
       if (order === 'ascending') {
+        this.listQuery.sort = '+comment_id'
+      } else {
+        this.listQuery.sort = '-comment_id'
+      }
+      this.handleFilter()
+    },
+    sortByPostId(order) {
+      if (order === 'ascending') {
         this.listQuery.sort = '+post_id'
       } else {
         this.listQuery.sort = '-post_id'
+      }
+      this.handleFilter()
+    },
+    sortByUserId(order) {
+      if (order === 'ascending') {
+        this.listQuery.sort = '+user_id'
+      } else {
+        this.listQuery.sort = '-user_id'
       }
       this.handleFilter()
     },
