@@ -15,7 +15,6 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-
     </div>
 
     <el-table
@@ -38,7 +37,6 @@
           <span>{{ row.username }}</span>
         </template>
       </el-table-column>
-
       <el-table-column label="性别" width="50px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.sex }}</span>
@@ -52,7 +50,6 @@
             :src="`http://localhost:8086/image/${row.avatar}`"
           />
           <span v-else>未上传</span>
-
         </template>
       </el-table-column>
       <el-table-column label="个性签名" align="left">
@@ -64,7 +61,6 @@
       </el-table-column>
       <el-table-column label="注册时间" width="180px" align="center">
         <template slot-scope="{row}">
-          <!--          <span>{{ row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>-->
           <span>{{ row.createtime }}</span>
         </template>
       </el-table-column>
@@ -123,9 +119,6 @@
 
           </el-popover>
 
-          <!--          <el-button v-if="row.locked!=true" size="mini" >-->
-          <!--            锁定-->
-          <!--          </el-button>-->
           <el-popconfirm
             v-else
             placement="top"
@@ -141,91 +134,20 @@
               解锁
             </el-button>
           </el-popconfirm>
-          <!--          <el-popconfirm-->
-          <!--            v-else-->
-          <!--            style="padding-right: 10px"-->
-          <!--            icon="el-icon-info"-->
-          <!--            icon-color="red"-->
-          <!--            title="确定解锁该用户吗？"-->
-          <!--            @confirm="handleModifyStatus(row,false)"-->
-          <!--          >-->
-          <!--            <el-button slot="reference" size="mini" type="success">解锁</el-button>-->
-          <!--          </el-popconfirm>-->
 
-          <!--          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">-->
-          <!--            Delete-->
-          <!--          </el-button>-->
         </template>
       </el-table-column>
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="Type" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Date" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
-        </el-form-item>
-        <el-form-item label="Title" prop="title">
-          <el-input v-model="temp.title" />
-        </el-form-item>
-        <el-form-item label="Status">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Imp">
-          <el-rate v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />
-        </el-form-item>
-        <el-form-item label="Recomplex-table.vuemark">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
-          Cancel
-        </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
-        </el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel" />
-        <el-table-column prop="pv" label="Pv" />
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">Confirm</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle, changeUserPwd, lockedUser, unLockUser } from '@/api/user'
+import { fetchList, changeUserPwd, lockedUser, unLockUser } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
-import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
-]
-
-// arr to obj, such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.key] = cur.display_name
-  return acc
-}, {})
 
 export default {
   name: 'ComplexTable',
@@ -234,17 +156,13 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        // published: 'success',
-        // draft: 'info',
         true: 'danger',
         false: 'success',
         deleted: 'danger'
       }
       return statusMap[status]
-    },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
     }
+
   },
   data() {
     return {
@@ -269,34 +187,8 @@ export default {
         userId: undefined
       },
       sexOptions: ['男', '女'],
-      calendarTypeOptions,
       sortOptions: [{ label: 'ID升序', key: '+id' }, { label: 'ID降序', key: '-id' }],
-      statusOptions: [{ label: '锁定', key: 1 }, { label: '正常', key: 0 }],
-      // statusOptions: ['published', 'draft', 'deleted'],
-      // showReviewer: false,
-      temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
-      rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
-      },
-      downloadLoading: false
+      statusOptions: [{ label: '锁定', key: 1 }, { label: '正常', key: 0 }]
     }
   },
   async created() {
@@ -304,33 +196,15 @@ export default {
   },
   methods: {
     async getList() {
-      this.listLoading = false
       await fetchList(this.listQuery).then(response => {
-        console.log(response)
         this.list = response.data.userList
         this.total = response.data.total
-        console.log(this.list)
-        // this.list = response.data.items
-        // this.total = response.data.total
-        //
-        // Just to simulate the time of the request
-        // setTimeout(() => {
-        //   this.listLoading = false
-        // }, 1.5 * 1000)
+        this.listLoading = false
       })
-      // fetchList(this.listQuery).then(response => {
-      //   this.list = response.data.items
-      //   this.total = response.data.total
-      //
-      //   // Just to simulate the time of the request
-      //   setTimeout(() => {
-      //     this.listLoading = false
-      //   }, 1.5 * 1000)
-      // })
     },
-    changePwd(userId) {
+    async changePwd(userId) {
       this.changePwdForm.userId = userId
-      changeUserPwd(this.changePwdForm).then(res => {
+      await changeUserPwd(this.changePwdForm).then(res => {
         this.$message.success(res.data)
         this.$router.go(0)
       })
@@ -340,12 +214,6 @@ export default {
       this.getList()
     },
     handleModifyStatus(row, status) {
-      // console.log(status)
-      // this.$message({
-      //   message: '操作Success',
-      //   type: 'success'
-      // })
-      // 后台要实现状态转换
       if (status) {
         lockedUser({ userId: row.userId, cause: this.lockedCause }).then(res => {
           this.$message.success(res.data)
@@ -372,109 +240,7 @@ export default {
       }
       this.handleFilter()
     },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row, index) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      })
 
-      this.list.splice(index, 1)
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
-      })
-    },
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-        const data = this.formatJson(filterVal)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
-      })
-    },
-    formatJson(filterVal) {
-      return this.list.map(v => filterVal.map(j => {
-        if (j === 'timestamp') {
-          return parseTime(v[j])
-        } else {
-          return v[j]
-        }
-      }))
-    },
     getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'

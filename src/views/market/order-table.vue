@@ -92,7 +92,6 @@
 
 <script>
 import waves from '@/directive/waves' // waves directive
-// import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
 import { fetchOrderList } from '@/api/market' // secondary package based on el-pagination
 
@@ -100,16 +99,7 @@ export default {
   name: 'ComplexTable',
   components: { Pagination },
   directives: { waves },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        0: 'info',
-        1: 'success',
-        2: 'danger'
-      }
-      return statusMap[status]
-    }
-  },
+
   data() {
     return {
       auditRadio: '1',
@@ -142,12 +132,12 @@ export default {
         { label: '总价降序', key: '-total_price' }
       ],
 
+      // 数据校验
       rules: {
         type: [{ required: true, message: 'type is required', trigger: 'change' }],
         timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
         title: [{ required: true, message: 'title is required', trigger: 'blur' }]
-      },
-      downloadLoading: false
+      }
     }
   },
   async created() {
@@ -157,14 +147,9 @@ export default {
     async getList() {
       await fetchOrderList(this.listQuery).then(res => {
         this.list = res.data.orderList
-        // console.log(this.list)
         this.total = res.data.total
         console.log(this.list)
         this.listLoading = false
-        // Just to simulate the time of the request
-        // setTimeout(() => {
-        //   this.listLoading = false
-        // }, 1.5 * 1000)
       })
     },
     handleFilter() {

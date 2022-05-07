@@ -57,7 +57,6 @@
             :src="row.wallImages[0]"
             :preview-src-list="row.wallImages"
           />
-          <!--          <span>{{ row.wallImages }}</span>-->
         </template>
       </el-table-column>
       <el-table-column label="申请时间" width="155px" align="center">
@@ -85,12 +84,7 @@
           <span>{{ row.auditTime }}</span>
         </template>
       </el-table-column>
-      <!--      在审核状态那一列鼠标移上去就能看到不过的原因-->
-      <!--      <el-table-column label="审核不过原因" width="100px" align="center">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <span>{{ row.auditFailedCause }}</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
+
       <el-table-column label="评论数" width="70px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.commentNum }}</span>
@@ -127,12 +121,8 @@
             <el-button slot="reference" size="mini" type="primary">
               审核
             </el-button>
-            <!--            <el-button slot="reference">click 激活</el-button>-->
           </el-popover>
 
-          <!--          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">-->
-          <!--            删除-->
-          <!--          </el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -146,7 +136,6 @@
 import { fetchPv, createArticle, updateArticle } from '@/api/admin'
 import { auditWall, fetchWallList } from '@/api/wall'
 import waves from '@/directive/waves' // waves directive
-// import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
@@ -192,23 +181,6 @@ export default {
         { label: '评论数降序', key: '-comment_num' }
       ],
 
-      temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
       rules: {
         type: [{ required: true, message: 'type is required', trigger: 'change' }],
         timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
@@ -222,7 +194,6 @@ export default {
   },
   methods: {
     async getList() {
-      this.listLoading = false
       await fetchWallList(this.listQuery).then(response => {
         this.list = response.data.walls
         console.log(this.list)
@@ -240,24 +211,14 @@ export default {
         })
         this.total = response.data.total
         console.log(this.list)
-
-        // Just to simulate the time of the request
-        // setTimeout(() => {
-        //   this.listLoading = false
-        // }, 1.5 * 1000)
+        this.listLoading = false
       })
     },
     handleFilter() {
       this.listQuery.pageNum = 1
       this.getList()
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
-    },
+
     sortChange(data) {
       const { prop, order } = data
       if (prop === 'wallId') {
@@ -272,52 +233,7 @@ export default {
       }
       this.handleFilter()
     },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
+
     handleAudit(row) {
       auditWall({
         wallId: row.wallId,
@@ -329,45 +245,12 @@ export default {
         this.$router.go(0)
       })
     },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row, index) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
-      })
-    },
+
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['墙ID', '申请人ID', '内容', '图片', '申请时间', '审核状态', '审核人ID', '审核时间', '评论数', '点赞数']
-        const filterVal = ['wallId', 'userId', 'wallContent', 'wallImages', 'createtime', 'auditState', 'adminId', 'auditTime', 'commentNum', 'likeNum']
+        const tHeader = ['墙ID', '申请人ID', '内容', '图片', '申请时间', '审核状态', '审核人ID', '审核时间']
+        const filterVal = ['wallId', 'userId', 'wallContent', 'wallImages', 'createtime', 'auditState', 'adminId', 'auditTime']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,

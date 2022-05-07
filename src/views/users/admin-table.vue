@@ -9,18 +9,12 @@
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select>
-
-      <!--      <el-select v-model="listQuery.type" placeholder="Type" clearable class="filter-item" style="width: 130px">-->
-      <!--        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key" />-->
-      <!--      </el-select>-->
-
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="dialogAddVisible=true">
         添加
       </el-button>
-
     </div>
 
     <el-table
@@ -38,13 +32,6 @@
           <span>{{ row.adminId }}</span>
         </template>
       </el-table-column>
-
-      <!--      <el-table-column label="Title" min-width="150px">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>-->
-      <!--          <el-tag>{{ row.type | typeFilter }}</el-tag>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
       <el-table-column label="用户名" width="110px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.username }}</span>
@@ -57,21 +44,9 @@
       </el-table-column>
       <el-table-column label="Date" width="180px" align="center">
         <template slot-scope="{row}">
-          <!--          <span>{{ row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>-->
           <span>{{ row.createTime }}</span>
         </template>
       </el-table-column>
-      <!--      <el-table-column v-if="showReviewer" label="Reviewer" width="110px" align="center">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <span style="color:red;">{{ row.reviewer }}</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-      <!--      <el-table-column label="Imp" width="80px">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <svg-icon v-for="n in + row.importance" :key="n" icon-class="star" class="meta-item__icon" />-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-
       <el-table-column label="Actions" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-popover
@@ -101,7 +76,6 @@
             <el-button slot="reference" size="mini" type="primary">
               修改角色
             </el-button>
-            <!--            <el-button slot="reference">click 激活</el-button>-->
           </el-popover>
           <el-popover
             placement="left"
@@ -110,12 +84,10 @@
             style="margin-left: 10px"
           >
             <h4 style="color:red;">此操作不可恢复！谨慎操作！</h4>
-
             <p align="center">
               <el-button type="primary" size="mini" @click="deleteAdmin(row.adminId)">确认删除</el-button>
             </p>
             <el-button slot="reference" type="danger" size="mini">删除</el-button>
-
           </el-popover>
 
         </template>
@@ -135,39 +107,21 @@
     >
       <el-form :model="AddForm">
         <el-form-item label="">
-          <el-input
-            v-model="AddForm.username"
-            placeholder="用户名"
-            prefix-icon="el-icon-user"
-          />
+          <el-input v-model="AddForm.username" placeholder="用户名" prefix-icon="el-icon-user" />
         </el-form-item>
         <el-form-item label="">
-          <el-input
-            v-model="AddForm.password"
-            type="password"
-            placeholder="密码"
-            prefix-icon="el-icon-lock"
-          />
+          <el-input v-model="AddForm.password" type="password" placeholder="密码" prefix-icon="el-icon-lock" />
         </el-form-item>
         <el-form-item label="">
           <el-select v-model="AddForm.roleId" placeholder="请选择角色">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-
         <el-form-item align="center">
-          <!--          <el-button type="primary" @click.native="handleLogin()">登录</el-button>-->
           <el-button type="danger" @click="handleAdd()">添加</el-button>
         </el-form-item>
       </el-form>
-
     </el-dialog>
-
   </div>
 </template>
 
@@ -236,19 +190,12 @@ export default {
       }
     },
     async getList() {
-      this.listLoading = false
       await fetchList(this.listQuery).then(response => {
         console.log(response)
         this.list = response.data.adminList
         this.total = response.data.total
         console.log(this.list)
-        // this.list = response.data.items
-        // this.total = response.data.total
-        //
-        // Just to simulate the time of the request
-        // setTimeout(() => {
-        //   this.listLoading = false
-        // }, 1.5 * 1000)
+        this.listLoading = false
       })
       // fetchList(this.listQuery).then(response => {
       //   this.list = response.data.items

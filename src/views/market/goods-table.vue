@@ -15,11 +15,6 @@
         搜索
       </el-button>
 
-      <!--      导出功能未完善-->
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
-        导出
-      </el-button>
-
     </div>
 
     <el-table
@@ -64,7 +59,6 @@
             :src="row.goodsImages[0]"
             :preview-src-list="row.goodsImages"
           />
-          <!--          <span>{{ row.wallImages }}</span>-->
         </template>
       </el-table-column>
       <el-table-column label="分类" width="90px" align="center">
@@ -99,6 +93,7 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-popover
+            v-if="row.goodsStatus==1"
             placement="left"
             title="下架"
             width="240"
@@ -139,11 +134,8 @@
 </template>
 
 <script>
-import { fetchPv, createArticle, updateArticle } from '@/api/admin'
-import { auditWall } from '@/api/wall'
 import { fetchGoodsList, unShelve, deleteGoods } from '@/api/market'
 import waves from '@/directive/waves' // waves directive
-// import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
@@ -184,32 +176,8 @@ export default {
         { label: 'ID升序', key: '+goods_id' },
         { label: '价格升序', key: '+goods_price' },
         { label: '价格降序', key: '-goods_price' }
-        // 交易量也可以排
-      ],
+      ]
 
-      temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
-      rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
-      },
-      downloadLoading: false
     }
   },
   async created() {
@@ -219,9 +187,7 @@ export default {
     async getList() {
       await fetchGoodsList(this.listQuery).then(response => {
         this.list = response.data.goodsList
-        console.log(this.list)
         this.list.forEach(function(item) {
-          console.log(item)
           if (item.goodsImages !== null) {
             const srcArr = item.goodsImages.split(',')
             const srcList = []
@@ -230,28 +196,16 @@ export default {
             })
             item.goodsImages = srcList
           }
-          console.log(item.goodsImages)
         })
         this.total = response.data.total
-        console.log(this.list)
         this.listLoading = false
-        // Just to simulate the time of the request
-        // setTimeout(() => {
-        //   this.listLoading = false
-        // }, 1.5 * 1000)
       })
     },
     handleFilter() {
       this.listQuery.pageNum = 1
       this.getList()
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
-    },
+
     sortChange(data) {
       const { prop, order } = data
       if (prop === 'goodsId') {
@@ -266,63 +220,6 @@ export default {
       }
       this.handleFilter()
     },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    handleAudit(row) {
-      auditWall({
-        wallId: row.wallId,
-        auditState: this.auditRadio,
-        auditFailedCause: this.auditCause
-      }).then(res => {
-        console.log(res)
-        this.$message.success(res.msg)
-        this.$router.go(0)
-      })
-    },
     handleUnShelve(goodsId) {
       unShelve(goodsId).then(res => {
         console.log(res)
@@ -330,25 +227,7 @@ export default {
         this.$router.go(0)
       })
     },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
+
     deleteGoods(goodsId, index) {
       deleteGoods(goodsId).then(res => {
         console.log(res)
@@ -356,40 +235,7 @@ export default {
         this.list.splice(index, 1)
       })
     },
-    handleDelete(row, index) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
-      })
-    },
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['墙ID', '申请人ID', '内容', '图片', '申请时间', '审核状态', '审核人ID', '审核时间', '评论数', '点赞数']
-        const filterVal = ['wallId', 'userId', 'wallContent', 'wallImages', 'createtime', 'auditState', 'adminId', 'auditTime', 'commentNum', 'likeNum']
-        const data = this.formatJson(filterVal)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'walls-list'
-        })
-        this.downloadLoading = false
-      })
-    },
-    formatJson(filterVal) {
-      return this.list.map(v => filterVal.map(j => {
-        return v[j]
-      }))
-    },
+
     getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'

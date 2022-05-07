@@ -11,7 +11,6 @@
           </div>
           <p class="card-panel-num">{{ userTotal }}</p>
 
-          <!--          <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />-->
         </div>
       </div>
     </el-col>
@@ -25,13 +24,11 @@
             帖子
           </div>
           <p class="card-panel-num">{{ postTotal }}</p>
-          <!--          <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />-->
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="4" class="card-panel-col">
       <div class="card-panel" @click="$router.push('/comments/index')">
-        <!-- 这里应该跳转评论管理页 -->
         <div class="card-panel-icon-wrapper icon-message">
           <svg-icon icon-class="message" class-name="card-panel-icon" />
         </div>
@@ -40,7 +37,6 @@
             评论
           </div>
           <p class="card-panel-num">{{ commentTotal }}</p>
-          <!--          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />-->
         </div>
       </div>
     </el-col>
@@ -54,7 +50,6 @@
             表白墙
           </div>
           <p class="card-panel-num">{{ wallTotal }}</p>
-          <!--          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />-->
         </div>
       </div>
     </el-col>
@@ -68,7 +63,6 @@
             商品
           </div>
           <p class="card-panel-num">{{ goodsTotal }}</p>
-          <!--          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />-->
         </div>
       </div>
     </el-col>
@@ -83,7 +77,6 @@
             订单
           </div>
           <p class="card-panel-num">{{ orderTotal }}</p>
-          <!--          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />-->
         </div>
       </div>
     </el-col>
@@ -91,7 +84,6 @@
 </template>
 
 <script>
-// import CountTo from 'vue-count-to'
 
 import { fetchUserTotal } from '@/api/user'
 import { fetchPostTotal } from '@/api/post'
@@ -100,9 +92,7 @@ import { fetchWallTotal } from '@/api/wall'
 import { fetchGoodsTotal, fetchOrderTotal } from '@/api/market'
 
 export default {
-  components: {
-    // CountTo
-  },
+
   data() {
     return {
       userTotal: 0,
@@ -151,10 +141,8 @@ export default {
       fetchOrderTotal().then(res => {
         this.orderTotal = res.data
       })
-    },
-    handleSetLineChartData(type) {
-      this.$emit('handleSetLineChartData', type)
     }
+
   }
 }
 </script>
