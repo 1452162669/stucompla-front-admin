@@ -135,7 +135,7 @@
             <h3 style="color:red;">删除后所有相关数据将丢失，此操作不可恢复！谨慎操作！</h3>
             <el-input
               v-model="deleteCause"
-              placeholder="请输入锁定原因（必填）"
+              placeholder="请输入删除原因（必填）"
             />
             <p align="center">
               <el-button type="primary" size="mini" @click="deletePost(row.postId,$index)">确认删除</el-button>

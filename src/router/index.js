@@ -141,6 +141,19 @@ export const constantRoutes = [
       }
     ]
   },
+  // 我的密码
+  {
+    path: '/myPassword',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'MyPassword',
+        component: () => import('@/views/myPassword/index'),
+        meta: { title: '我的密码', icon: 'form' }
+      }
+    ]
+  },
   {
     path: '/example',
     component: Layout,

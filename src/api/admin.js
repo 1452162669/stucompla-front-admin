@@ -29,35 +29,43 @@ export function fetchList(query) {
     params: query
   })
 }
-export function fetchArticle(id) {
-  return request({
-    url: '/vue-element-admin/article/detail',
-    method: 'get',
-    params: { id }
-  })
-}
 
-export function fetchPv(pv) {
+export function changeMyPwd(query) {
   return request({
-    url: '/vue-element-admin/article/pv',
-    method: 'get',
-    params: { pv }
-  })
-}
-
-export function createArticle(data) {
-  return request({
-    url: '/vue-element-admin/article/create',
+    url: '/admin/info/changePassword',
     method: 'post',
-    data
+    params: query
   })
 }
 
-export function updateArticle(data) {
+export function changeMyUsername(query) {
   return request({
-    url: '/vue-element-admin/article/update',
+    url: '/admin/info/changeMyUsername',
     method: 'post',
-    data
+    params: query
   })
 }
 
+export function changeRole(query) {
+  return request({
+    url: '/admin/info/changeRole',
+    method: 'post',
+    params: query
+  })
+}
+
+export function deleteAdmin(query) {
+  return request({
+    url: '/admin/info/deleteAdmin',
+    method: 'delete',
+    params: query
+  })
+}
+
+export function addAdmin(query) {
+  return request({
+    url: '/admin/info/add',
+    method: 'post',
+    params: query
+  })
+}
