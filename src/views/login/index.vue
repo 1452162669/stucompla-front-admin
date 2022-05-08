@@ -24,7 +24,6 @@
           name="username"
           type="text"
           tabindex="1"
-          auto-complete="on"
         />
       </el-form-item>
 
@@ -72,15 +71,15 @@ export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (value.length < 3) {
-        callback(new Error('Please enter the correct user name'))
+      if (value.length < 3 || value.length > 10) {
+        callback(new Error('用户名长度在3-10位'))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
+      if (value.length < 6 || value.length > 16) {
+        callback(new Error('密码长度在6-16位'))
       } else {
         callback()
       }
@@ -109,14 +108,14 @@ export default {
   },
   methods: {
     showPwd() {
-      // if (this.passwordType === 'password') {
-      //   this.passwordType = ''
-      // } else {
-      //   this.passwordType = 'password'
-      // }
-      // this.$nextTick(() => {
-      //   this.$refs.password.focus()
-      // })
+      if (this.passwordType === 'password') {
+        this.passwordType = ''
+      } else {
+        this.passwordType = 'password'
+      }
+      this.$nextTick(() => {
+        this.$refs.password.focus()
+      })
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
