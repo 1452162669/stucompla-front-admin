@@ -5,7 +5,6 @@ export function fetchCommentList(query) {
     url: '/comment/listByAdmin',
     method: 'get',
     params: query
-
   })
 }
 

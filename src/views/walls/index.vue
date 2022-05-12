@@ -85,16 +85,16 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="评论数" width="70px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.commentNum }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="点赞数" width="70px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.likeNum }}</span>
-        </template>
-      </el-table-column>
+      <!--      <el-table-column label="评论数" width="70px" align="center">-->
+      <!--        <template slot-scope="{row}">-->
+      <!--          <span>{{ row.commentNum }}</span>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
+      <!--      <el-table-column label="点赞数" width="70px" align="center">-->
+      <!--        <template slot-scope="{row}">-->
+      <!--          <span>{{ row.likeNum }}</span>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
       <!--操作-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import { fetchPv, createArticle, updateArticle } from '@/api/admin'
+
 import { auditWall, fetchWallList } from '@/api/wall'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -174,11 +174,11 @@ export default {
         { label: 'ID升序', key: '+wall_id' },
         { label: 'ID降序', key: '-wall_id' },
         { label: '审核时间升序', key: '+audit_time' },
-        { label: '审核时间降序', key: '-audit_time' },
-        { label: '点赞数升序', key: '+like_num' },
-        { label: '点赞数降序', key: '-like_num' },
-        { label: '评论数升序', key: '+comment_num' },
-        { label: '评论数降序', key: '-comment_num' }
+        { label: '审核时间降序', key: '-audit_time' }
+        // { label: '点赞数升序', key: '+like_num' },
+        // { label: '点赞数降序', key: '-like_num' },
+        // { label: '评论数升序', key: '+comment_num' },
+        // { label: '评论数降序', key: '-comment_num' }
       ],
 
       rules: {
