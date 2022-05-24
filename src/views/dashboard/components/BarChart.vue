@@ -88,7 +88,7 @@ export default {
             // 加入这段代码隐藏过长的文字,长度可以自己定义
             formatter: function(value) {
               var res = value
-              if (res.length > 5) {
+              if (res.length > 4) {
                 res = res.substring(0, 4) + '..'
               }
               return res
